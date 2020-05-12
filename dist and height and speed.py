@@ -8,7 +8,7 @@ Created on Fri May  8 11:47:52 2020
 import numpy as np
 import cv2
 import math as m
-import time as tm
+
 
 hand_cascade = cv2.CascadeClassifier('C:/Users/babai/Desktop/haarcascade/aGest.xml')
 
@@ -28,6 +28,7 @@ pv_deg=v_fov/1280
 change_res(1280,720)
 c=0
 c2=0
+out = cv2.VideoWriter('outpy2.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (1280,720))
 while True:
     ret, img = cap.read()
     
@@ -47,10 +48,10 @@ while True:
     for (x,y,w,h) in hand:
         fps = cap.get(cv2.CAP_PROP_FPS)
         cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-        d=((110*f)/w)/10
-        h=d*m.sin(m.radians(p_deg*abs((360-(y+(h/2))))))
-        tempStr=str(d)+" , X + "+str(h)+" , "+str(fps)
-        cv2.putText(img,tempStr,(0,50),cv2.FONT_HERSHEY_SIMPLEX,1,(200,255,200),5,1)
+        d=((110*f)/w)/1000
+        hi=d*m.sin(m.radians(p_deg*abs((360-(y+(h/2))))))
+        tempStr="Distance= "+str(d)+" , Height = X + "+str(hi)
+        cv2.putText(img,tempStr,(0,50),cv2.FONT_HERSHEY_SIMPLEX,1,(200,255,0),5,1)
         
         if(c==1):    
           d2=d
@@ -59,8 +60,8 @@ while True:
           w2=w
           h2=h
           s=m.sqrt(np.square(d2*m.sin(m.radians(pv_deg*abs((640-(x2+(w2/2))))))-d1*m.sin(m.radians(pv_deg*abs((640-(x1+(w1/2)))))))+np.square(d2*m.sin(m.radians(p_deg*abs((360-(y2+(h2/2))))))-d1*m.sin(m.radians(p_deg*abs((360-(y1+(h1/2)))))))+np.square(d2*m.cos(m.radians(p_deg*abs((360-(y2+(h2/2))))))-d1*m.cos(m.radians(p_deg*abs((360-(y1+(h1/2))))))))/((c2+1)/30)
-          tempStr2=str(s)
-          cv2.putText(img,tempStr2,(x,y),cv2.FONT_HERSHEY_SIMPLEX,1,(200,255,200),5,1)
+          tempStr2="Speed = "+str(s)
+          cv2.putText(img,tempStr2,(x,y-5),cv2.FONT_HERSHEY_SIMPLEX,1,(200,255,0),5,1)
           print(c)
           c=0
           c2=0
@@ -71,10 +72,13 @@ while True:
           w1=w
           h1=h
           c+=1
+    
     cv2.imshow('img',img)
+    out.write(img)
     k = cv2.waitKey(30) & 0xff
     if k == 27:
         break
 
 cap.release()
+out.release()
 cv2.destroyAllWindows()
